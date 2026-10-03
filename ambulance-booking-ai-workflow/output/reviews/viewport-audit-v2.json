@@ -1,0 +1,142 @@
+[
+  {
+    "activeNav": "Home",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 390,
+    "smallButtons": [],
+    "view": "V01",
+    "warningText": false,
+    "width": 390
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 390,
+    "smallButtons": [],
+    "view": "V02",
+    "warningText": false,
+    "width": 390
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 390,
+    "smallButtons": [],
+    "view": "V03",
+    "warningText": false,
+    "width": 390
+  },
+  {
+    "activeNav": "Help",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 390,
+    "smallButtons": [],
+    "view": "V07",
+    "warningText": false,
+    "width": 390
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 390,
+    "smallButtons": [],
+    "view": "V04",
+    "warningText": false,
+    "width": 390
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 390,
+    "smallButtons": [],
+    "view": "V05",
+    "warningText": false,
+    "width": 390
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 390,
+    "smallButtons": [],
+    "view": "V06",
+    "warningText": false,
+    "width": 390
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 320,
+    "smallButtons": [],
+    "view": "V05",
+    "warningText": false,
+    "width": 320
+  },
+  {
+    "activeNav": "Home",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 320,
+    "smallButtons": [],
+    "view": "V01",
+    "warningText": false,
+    "width": 320
+  },
+  {
+    "activeNav": "Help",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 320,
+    "smallButtons": [],
+    "view": "V07",
+    "warningText": false,
+    "width": 320
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 320,
+    "smallButtons": [],
+    "view": "V06",
+    "warningText": false,
+    "width": 320
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 320,
+    "smallButtons": [],
+    "view": "V02",
+    "warningText": false,
+    "width": 320
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 320,
+    "smallButtons": [],
+    "view": "V03",
+    "warningText": false,
+    "width": 320
+  },
+  {
+    "activeNav": "Booking",
+    "bottomPadding": "98px",
+    "navHeight": 75,
+    "scrollWidth": 320,
+    "smallButtons": [],
+    "view": "V04",
+    "warningText": false,
+    "width": 320
+  }
+]
