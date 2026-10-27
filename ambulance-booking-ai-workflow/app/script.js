@@ -32,9 +32,10 @@
     document.querySelectorAll('[data-stage]').forEach((node,i)=>{node.removeAttribute('aria-current');if(i===index)node.setAttribute('aria-current','step');node.querySelector('.stage-label').textContent=i<index?'Completed':i===index?'Current step':'Upcoming';});
     $('#current-stage').textContent=stages[index];$('#stage-copy').textContent=stageCopy[index];$('#receipt-stage').textContent=stages[index];$('#receipt-copy').textContent=stageCopy[index];$('#advance').hidden=index===2;$('#sequence-complete').hidden=index!==2;
     const context=contexts[state.helpContext]||contexts.general;
-    $('#context-heading').textContent=context[0];$('#context-copy').textContent=context[1];
-    $('#return-help').textContent='Return to '+(names[state.helpOrigin]||'Home');
-    $('#contact-feedback').hidden=!state.contact;$('#contact-feedback').textContent=state.contact?'Contact options are not connected yet.':'';
+    if($('#context-heading')) $('#context-heading').textContent=context[0];
+    if($('#context-copy')) $('#context-copy').textContent=context[1];
+    if($('#return-help')) $('#return-help').textContent='Return to '+(names[state.helpOrigin]||'Home');
+    if($('#contact-feedback')){ $('#contact-feedback').hidden=!state.contact;$('#contact-feedback').textContent=state.contact?'Contact options are not connected yet.':''; }
     renderConfirmation();
   }
   function go(view, preserveErrors=false){state.view=view;state.confirm=null;if(!preserveErrors)clearErrors();render();$('#'+view+' h1').focus();window.scrollTo(0,0);}
@@ -48,13 +49,93 @@
     const discard=document.createElement('button');discard.className='secondary';discard.dataset.action='discard';discard.textContent='Start over and return home';
     container.append(title,copy,keep,discard);$('#'+state.view+' .confirm-slot').append(container);
   }
+  const CHAT_API_URL = 'https://care-chatbot-api.onrender.com/chat';
+  function appendChatMessage(sender, text, isError=false){
+    const messages=$('#chat-messages');if(!messages)return;
+    const msg=document.createElement('div');
+    msg.className='chat-msg chat-msg-'+sender+(isError?' chat-msg-error':'');
+    const bubble=document.createElement('div');
+    bubble.className='chat-bubble';
+    const senderName=document.createElement('div');
+    senderName.className='chat-sender';
+    senderName.textContent=sender==='user'?'You':'Care Assistant';
+    const p=document.createElement('p');
+    p.textContent=text;
+    bubble.append(senderName,p);
+    msg.append(bubble);
+    messages.append(msg);
+    messages.scrollTop=messages.scrollHeight;
+  }
+  function setChatLoading(isLoading){
+    const loading=$('#chat-loading');const sendBtn=$('#chat-send');const input=$('#chat-input');
+    if(loading)loading.hidden=!isLoading;
+    if(sendBtn)sendBtn.disabled=isLoading;
+    if(input)input.disabled=isLoading;
+    const messages=$('#chat-messages');if(messages)messages.scrollTop=messages.scrollHeight;
+  }
+  async function sendChatMessage(rawText){
+    const text=(rawText||'').trim();
+    if(!text)return;
+    appendChatMessage('user',text);
+    const input=$('#chat-input');
+    if(input)input.value='';
+    setChatLoading(true);
+    announce('Care Assistant is thinking…');
+    try{
+      const res=await fetch(CHAT_API_URL,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:text})
+      });
+      if(!res.ok){
+        throw new Error('HTTP error '+res.status);
+      }
+      const data=await res.json();
+      if(!data||typeof data.response!=='string'){
+        throw new Error('Missing response field in API output');
+      }
+      setChatLoading(false);
+      appendChatMessage('bot',data.response);
+      announce('Care Assistant: '+data.response);
+    }catch(err){
+      setChatLoading(false);
+      appendChatMessage('bot','I’m having trouble connecting right now. Please try again.',true);
+      announce('I’m having trouble connecting right now. Please try again.');
+    }finally{
+      const inputEl=$('#chat-input');
+      if(inputEl&&!inputEl.disabled)inputEl.focus();
+    }
+  }
+  function resetChat(){
+    const messages=$('#chat-messages');
+    if(messages){
+      messages.replaceChildren();
+      appendChatMessage('bot','Hello! I’m your Care Assistant. How can I help you today? Ask me about booking an ambulance, fares, or emergency options.');
+    }
+    setChatLoading(false);
+    const input=$('#chat-input');
+    if(input)input.value='';
+  }
   $('#address').addEventListener('input',event=>{state.address=event.target.value;document.querySelectorAll('[data-bind=address]').forEach(node=>{node.textContent=state.address.trim()||'Not entered';});if(state.address.trim()){ $('#address-error').hidden=true;$('#address').removeAttribute('aria-invalid');}});
   $('#landmark').addEventListener('input',event=>{state.landmark=event.target.value;document.querySelectorAll('[data-bind=landmark]').forEach(node=>{node.textContent=state.landmark.trim()||'None';});});
   $('#pickup-form').addEventListener('submit',event=>{event.preventDefault();if(!state.address.trim()){const error=$('#address-error');error.textContent='Error: Enter a pickup address.';error.hidden=false;$('#address').setAttribute('aria-invalid','true');$('#address').focus();return;}go('V03');});
   $('#category-form').addEventListener('submit',event=>{event.preventDefault();if(!state.category){const error=$('#category-error');error.textContent='Error: Choose an ambulance, or open help if unsure.';error.hidden=false;document.querySelectorAll('[name=category]').forEach(input=>input.setAttribute('aria-invalid','true'));$('#standard').focus();return;}go('V04');});
   document.querySelectorAll('[name=category]').forEach(input=>input.addEventListener('change',event=>{state.category=event.target.value;clearErrors();}));
   document.querySelectorAll('[name=fixture]').forEach(input=>input.addEventListener('change',event=>{state.fixture=event.target.value;render();announce(state.fixture==='available'?'Estimates shown.':'No options to show.');}));
+  const chatForm=$('#chat-form');
+  if(chatForm){
+    chatForm.addEventListener('submit',event=>{
+      event.preventDefault();
+      const input=$('#chat-input');
+      if(input)sendChatMessage(input.value);
+    });
+  }
   document.addEventListener('click',event=>{
+    const chip=event.target.closest('.chat-chip');
+    if(chip&&chip.dataset.question){
+      sendChatMessage(chip.dataset.question);
+      return;
+    }
     const button=event.target.closest('button[data-action]');if(!button)return;
     switch(button.dataset.action){
       case 'start':go(state.received?'V05':'V02');break;
@@ -72,7 +153,7 @@
       case 'contact':state.contact=true;render();announce('Contact options are not connected yet.');break;
       case 'cancel':case 'reset':state.confirm=button.dataset.action;state.confirmInvoker=button;renderConfirmation();$('#confirm-question').focus();break;
       case 'keep':{const invoker=state.confirmInvoker;state.confirm=null;renderConfirmation();invoker?.focus();break;}
-      case 'discard':state=initial();$('#live-status').textContent='';go('V01');break;
+      case 'discard':state=initial();resetChat();$('#live-status').textContent='';go('V01');break;
     }
   });
   render();
